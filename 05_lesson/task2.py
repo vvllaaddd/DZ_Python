@@ -10,7 +10,7 @@ sleep(2)  # Ждем загрузку страницы
 
 # Находим кнопку по тексту и кликаем
 button = browser.find_element(
-    By.XPATH, "//button[text()='Button with Dynamic ID']"
+    By.XPATH, "//button[contains(text(), 'Button with Dynamic ID')]"
 )
 print("Клик по кнопке выполнен")
 
