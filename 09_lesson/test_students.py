@@ -1,64 +1,87 @@
+import pytest
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 
+# Настройки подключения к БД
 DATABASE_URL = "postgresql://postgres:1234@localhost:5432/qa_utf8"
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
 
+# Модель таблицы
 class Student(Base):
-    __tablename__ = 'students'
+    __tablename__ = 'student'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    age = Column(Integer)
+    user_id = Column(Integer, primary_key=True)
+    level = Column(String)
+    education_form = Column(String)
+    subject_id = Column(Integer)
 
 
-def test_add_student():
+# Фикстура для создания сессии
+@pytest.fixture
+def session():
     session = Session()
-    student = Student(name="Test Student", age=21)
+    yield session
+    session.close()
+
+
+# Тест на добавление студента
+def test_add_student(session):
+    student = Student(
+        user_id=999999,
+        level="Intermediate",
+        education_form="group",
+        subject_id=1
+    )
     session.add(student)
     session.commit()
 
-    added = session.query(Student).filter_by(
-        name="Test Student", age=21
-    ).first()
+    added = session.query(Student).filter_by(user_id=999999).first()
     assert added is not None
+    assert added.level == "Intermediate"
+    assert added.education_form == "group"
 
     session.delete(added)
     session.commit()
-    session.close()
 
 
-def test_update_student():
-    session = Session()
-    student = Student(name="Update Student", age=18)
+# Тест на обновление студента
+def test_update_student(session):
+    student = Student(
+        user_id=999998,
+        level="Beginner",
+        education_form="personal",
+        subject_id=1
+    )
     session.add(student)
     session.commit()
 
-    student.age = 25
+    student.level = "Advanced"
     session.commit()
 
-    updated = session.query(Student).filter_by(name="Update Student").first()
-    assert updated.age == 25
+    updated = session.query(Student).filter_by(user_id=999998).first()
+    assert updated.level == "Advanced"
 
     session.delete(updated)
     session.commit()
-    session.close()
 
 
-def test_delete_student():
-    session = Session()
-    student = Student(name="Delete Student", age=30)
+# Тест на удаление студента
+def test_delete_student(session):
+    student = Student(
+        user_id=999997,
+        level="Elementary",
+        education_form="group",
+        subject_id=1
+    )
     session.add(student)
     session.commit()
 
     session.delete(student)
     session.commit()
 
-    deleted = session.query(Student).filter_by(name="Delete Student").first()
+    deleted = session.query(Student).filter_by(user_id=999997).first()
     assert deleted is None
-
-    session.close()
