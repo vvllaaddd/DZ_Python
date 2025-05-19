@@ -1,0 +1,11 @@
+pytest
+Version: 8.3.5
+
+selenium
+Version: 4.30.0
+
+allure-pytest
+Version: 2.14.2
+
+webdriver-manager
+Version: 4.0.2
